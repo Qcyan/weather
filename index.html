@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="font/iconfont.css">
+	<script src="angular.min.js" type="text/javascript" charset="utf-8"></script>
+	<style type="text/css">
+	*{
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	html,body{
+		height: 100%;
+		width: 100%;
+	}
+	#main{
+		height: 100%;
+		width: 100%;
+		background-size: 100%;
+		background-image: url("imgs/bg1.jpg");
+	}
+	#page1{
+		display: flex;
+		flex-flow:column wrap;
+		justify-content:center;
+		align-items:center;
+	}
+	#page1 img{
+		width: 150px;
+		height: 150px;
+		border-radius: 20%;
+		margin: 50px 0 30px 0
+	}
+	#page1 p {
+		color:white;
+		font-size:19px;
+		margin-bottom: 10px;
+	}
+	#put{
+		overflow: hidden;
+	}
+	#put input{
+		width: 250px;
+		height: 40px;
+		background-color:white;
+		float: left;
+		border:0;
+	}
+	.search{
+		width: 60px;
+		height: 40px;
+		float: left;
+		background-color:#4169E1;
+		color:white;
+		font-size: 20px;
+		text-align: center;
+		line-height: 36px;
+	}
+	</style>
+</head>
+<body>
+	<!--引用于iconfont.cn字体图标库，与 和风天气数据-->
+
+	<div id="main">
+		<div ng-app="app" ng-controller="weather">
+			<div id="page1" ng-show="true">
+				<img src="imgs/page1.jpg" ng-show="imgs">
+				<p>soso天气</p>
+				<div id="put">
+					<input type="text" ng-model="city"  ng-keyup="myKeyup($event)" placeholder="请输入城市名" />
+					<div ng-click='search($event)' class="search">soso</div>
+				</div>
+			<div>
+				
+			<!--天气图 -->
+			<div id="page2" ng-show="isResult">
+				<p>soso天气</p>
+				<div id="put">
+					<input type="text" ng-model="city"  ng-keyup="myKeyup($event)" placeholder="请输入城市名" />
+					<div ng-click='search($event)' class="search">soso</div>
+				</div>
+				<span class="iconfont" ng-class="icon"></span>
+				<img ng-src='{{imgSrc}}' />
+			</div>
+		</div>
+	</div>
+
+	 
+	<script type="text/javascript">
+		var app = angular.module("app",[]);
+		app.controller("weather",function($scope,$http){
+			$scope.city = ""
+			$scope.imgs = true
+			$scope.isplay = true
+			//鼠标点击事件
+			$scope.search = function($event){
+				outside()
+			}
+			//键盘发送事件
+			$scope.myKeyup = function($event){
+				console.log($event)
+				var keycode = window.event?$event.keyCode:$event.which; 
+		        if(keycode==13){
+		        	outside()
+		        }
+			}
+			function outside(){
+				$http.get("https://free-api.heweather.com/v5/weather?city="+$scope.city+"&key=c8b18212397748599a7fb0bfa1022b56").then(function(result){
+					console.log(result)
+					$scope.imgs = false;
+					var weather = result.data.HeWeather5[0];
+					if(result.data&&weather.status!=="unknown city"){
+						$scope.isResult = true;
+						switch(weather.now.cond.txt){
+							case "雨天":
+								$scope.icon = "icon-yutian";
+								$scope.imgSrc = "https://cdn.heweather.com/cond_icon/101.png"
+								break;
+							case "晴":
+								$scope.icon = "icon-qingtian";
+								$scope.imgSrc = "https://cdn.heweather.com/cond_icon/100.png";
+								break;
+							default:
+								$scope.icon = "icon-qingtian";
+								$scope.imgSrc = "https://cdn.heweather.com/cond_icon/100.png";
+						}
+					}
+				})
+			}
+		})
+
+	</script>
+</body>
+</html>
