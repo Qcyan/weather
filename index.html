@@ -17,15 +17,17 @@
 		width: 100%;
 	}
 	#main{
-		height: 100%;
+		height:100%;
 		width: 100%;
 		background-size: 100%;
-		background-image: url("imgs/bg1.jpg");
+		/*background-image: url("imgs/bg1.jpg") ;*/
+		background: url("imgs/bg2.jpg") no-repeat;
 	}
 	#page1{
+		height:100%;
+		width: 100%;
 		display: flex;
 		flex-flow:column wrap;
-		justify-content:center;
 		align-items:center;
 	}
 	#page1 img{
@@ -59,42 +61,129 @@
 		text-align: center;
 		line-height: 36px;
 	}
+
+	/*页面2*/
+	#page2{
+		width: 100%;
+		height: 100%;
+		/*background-color: white;*/
+		color:white;
+		display: flex;
+		flex-flow:column wrap;
+		align-items:center;
+		justify-content: center;
+		position: relative;
+
+	}
+	.bggray{
+		width: 90%;
+		height: 90%;
+		background-color:rgba(80,98,112,.2);
+		border-radius: 3%;
+		display: flex;
+		flex-flow:column wrap;
+		align-items:center;
+	}
+	.city{font-size: 30px;margin-top: 50px;}
+	.msg{
+		position: absolute;
+		left: 50px;
+		top: 330px;
+	}
+	.tmp{
+		font-size: 40px;
+		margin-bottom: 10px
+	}
+	.wind{
+		margin-bottom: 5px;
+	}
+	.future{
+		width: 90%;
+		height: 18%;
+		position: absolute;
+		bottom:7%;
+		background-color:rgba(14, 115, 49,.2);
+	}
+	.tomorrow{
+		border-right: 1px #1f1027 solid;
+	}
+	.tomorrow,.ATomorrow{
+		width: 50%;
+		height: 100%;
+		float: left;
+		position: relative;
+		padding: 10px;
+	}
+	.tomorrow img,.ATomorrow img{
+		position: absolute;
+		right: 0px;
+		bottom: 20px;
+	}
+	.tomorrow span,.ATomorrow span{
+		display: inline-block;
+		margin-bottom: 6px;
+	}
+	.tomorrow p,.ATomorrow p{
+		margin-bottom: 10px;
+	}
 	</style>
 </head>
-<body>
+<body ng-app="app">
 	<!--引用于iconfont.cn字体图标库，与 和风天气数据-->
-
-	<div id="main">
-		<div ng-app="app" ng-controller="weather">
-			<div id="page1" ng-show="true">
-				<img src="imgs/page1.jpg" ng-show="imgs">
+	
+	<div ng-controller="weather" id="main"  ng-style="aa">
+		<!-- <div> -->
+			<div id="page1" ng-show="isplay">
+				<img src="imgs/page1.jpg">
 				<p>soso天气</p>
 				<div id="put">
-					<input type="text" ng-model="city"  ng-keyup="myKeyup($event)" placeholder="请输入城市名" />
+					<input type="text" ng-model="city"  ng-keyup="myKeyup($event)" placeholder="请输入城市名" autofocus />
 					<div ng-click='search($event)' class="search">soso</div>
 				</div>
-			<div>
+			</div>
 				
 			<!--天气图 -->
 			<div id="page2" ng-show="isResult">
-				<p>soso天气</p>
-				<div id="put">
-					<input type="text" ng-model="city"  ng-keyup="myKeyup($event)" placeholder="请输入城市名" />
-					<div ng-click='search($event)' class="search">soso</div>
+					
+				<div class="bggray">
+					<div class="city">{{city}}</div>
+					<div class="time">{{time}}</div>
+					<img ng-src='{{imgSrc}}' />
+					<!-- <span class="iconfont" ng-class="icon"></span> -->
+					<p>{{wet}}</p>
+					<div class="msg">
+						<div class="quality">{{"空气质量:"+quality}}</div>
+						<!-- <div class="nowTmp">{{nowTmp}}</div> -->
+						<div class="tmp">{{tmpMin+"~"+tmpMax+"℃"}}</div>
+						<div class="wind">{{"风向:"+wind}}</div>
+						<div class="tmpgrade">{{"风力等级:"+tmpgrade}}</div>
+					</div>
+					<div class="future">
+						<div class="tomorrow">
+							<span>明天</span>
+							<p>{{wet1}}</p>
+							<div>{{tmpMin1+"~"+tmpMax1+"℃"}}</div>
+							<img ng-src='{{imgSrctt}}' />
+						</div >
+						<div class="ATomorrow">
+							<span>后天</span>
+							<p>{{wet2}}</p>
+							<div>{{tmpMin2+"~"+tmpMax2+"℃"}}</div>
+							<img ng-src='{{imgSrcdd}}' />
+						</div>
+					</div>
+					
 				</div>
-				<span class="iconfont" ng-class="icon"></span>
-				<img ng-src='{{imgSrc}}' />
+				
 			</div>
-		</div>
+	<!-- 	</div> -->
 	</div>
-
 	 
 	<script type="text/javascript">
 		var app = angular.module("app",[]);
 		app.controller("weather",function($scope,$http){
 			$scope.city = ""
-			$scope.imgs = true
-			$scope.isplay = true
+			$scope.isplay = true;
 			//鼠标点击事件
 			$scope.search = function($event){
 				outside()
@@ -107,26 +196,105 @@
 		        	outside()
 		        }
 			}
+			//请求成功函数
 			function outside(){
 				$http.get("https://free-api.heweather.com/v5/weather?city="+$scope.city+"&key=c8b18212397748599a7fb0bfa1022b56").then(function(result){
 					console.log(result)
-					$scope.imgs = false;
+					$scope.isplay = false;
+					$scope.aa = {
+						height:"100%",
+						width: "100%",
+						backgroundSize: "100%",
+						position:"relative",
+						background: "url('imgs/bg3.jpg') no-repeat",
+					}
 					var weather = result.data.HeWeather5[0];
 					if(result.data&&weather.status!=="unknown city"){
 						$scope.isResult = true;
-						switch(weather.now.cond.txt){
-							case "雨天":
-								$scope.icon = "icon-yutian";
-								$scope.imgSrc = "https://cdn.heweather.com/cond_icon/101.png"
+						$scope.city = weather.basic.city
+						$scope.time = weather.daily_forecast[0].date;
+						$scope.quality = weather.aqi.city.qlty;
+						$scope.nowTmp = weather.now.tmp;
+						$scope.tmpMin = weather.daily_forecast[0].tmp.min;
+						$scope.tmpMax = weather.daily_forecast[0].tmp.max;
+						$scope.tmpMin1 = weather.daily_forecast[1].tmp.min;
+						$scope.tmpMax1 = weather.daily_forecast[1].tmp.max;
+						$scope.tmpMin2 = weather.daily_forecast[2].tmp.min;
+						$scope.tmpMax2 = weather.daily_forecast[2].tmp.max;
+						$scope.wind = weather.daily_forecast[0].wind.dir;
+						$scope.tmpgrade = weather.daily_forecast[0].wind.sc;
+						$scope.wet = weather.daily_forecast[0].cond.txt_d;
+						$scope.wet1 = weather.daily_forecast[1].cond.txt_d;
+						$scope.wet2 = weather.daily_forecast[2].cond.txt_d;
+						switch(weather.daily_forecast[0].cond.txt_d){
+							case "多云":
+								// $scope.icon = "icon-yutian";
+								$scope.imgSrc = "imgs/duoyun.png"
 								break;
 							case "晴":
-								$scope.icon = "icon-qingtian";
-								$scope.imgSrc = "https://cdn.heweather.com/cond_icon/100.png";
+								// $scope.icon = "icon-qingtian";
+								$scope.imgSrc = "imgs/qing.png";
 								break;
+							case "小雨":
+								$scope.imgSrc ="imgs/xiaoyu.png";
+								break;
+							case "阵雨":
+								$scope.imgSrc ="imgs/zhenyu.png";
+								break;
+							case "大雨":
+								$scope.imgSrc ="imgs/dayu.png";
+							break;
 							default:
 								$scope.icon = "icon-qingtian";
-								$scope.imgSrc = "https://cdn.heweather.com/cond_icon/100.png";
+								$scope.imgSrc = "imgs/qing.png";
 						}
+						switch(weather.daily_forecast[1].cond.txt_d){
+							case "多云":
+								// $scope.icon = "icon-yutian";
+								$scope.imgSrctt = "imgs/duoyun.png"
+								break;
+							case "晴":
+								// $scope.icon = "icon-qingtian";
+								$scope.imgSrctt = "imgs/qing.png";
+								break;
+							case "小雨":
+								$scope.imgSrctt ="imgs/xiaoyu.png";
+								break;
+							case "阵雨":
+								$scope.imgSrctt ="imgs/zhenyu.png";
+								break;
+							case "大雨":
+								$scope.imgSrctt ="imgs/dayu.png";
+							break;
+							default:
+								$scope.icon = "icon-qingtian";
+								$scope.imgSrctt = "imgs/qing.png";
+						}
+						switch(weather.daily_forecast[2].cond.txt_d){
+							case "多云":
+								// $scope.icon = "icon-yutian";
+								$scope.imgSrcdd = "imgs/duoyun.png"
+								break;
+							case "晴":
+								// $scope.icon = "icon-qingtian";
+								$scope.imgSrcdd = "imgs/qing.png";
+								break;
+							case "小雨":
+								$scope.imgSrcdd ="imgs/xiaoyu.png";
+								break;
+							case "阵雨":
+								$scope.imgSrcdd ="imgs/zhenyu.png";
+								break;
+							case "大雨":
+								$scope.imgSrcdd ="imgs/dayu.png";
+							break;
+							default:
+								$scope.icon = "icon-qingtian";
+								$scope.imgSrcdd = "imgs/qing.png";
+						}
+						
+					}else{
+						alert("这不是一个城市");
 					}
 				})
 			}
